@@ -139,3 +139,14 @@ LOGGING = {
         },
     },
 }
+
+DEFAULT_FILE_STORAGE = 'project.storages.MediaStorage'
+STATICFILES_STORAGE = 'project.storages.S3StaticStorage'
+
+MEDIAFILES_LOCATION = 'media'
+STATICFILES_LOCATION = 'static'
+
+AWS_ACCESS_KEY_ID = get_secret("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = get_secret("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = get_secret("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = get_secret("AWS_S3_REGION_NAME")
