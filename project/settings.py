@@ -70,9 +70,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': get_secret("ENGINE"),
+        'NAME': get_secret("DBNAME"),
+        'USER': get_secret("USER"),
+        'PASSWORD': get_secret("PASSWORD"),
+        'HOST': get_secret("HOST"),
+        'PORT': get_secret("PORT"),
+    },
+    'OPTIONS': {
+        'init_command' : "SET sql_mode='STRICT_TRANS_TABLES'",
+    },
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -112,4 +119,23 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ]
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'catalina.log',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'ERROR',  # 에러 레벨 이상의 로그만 기록
+            'propagate': False,
+        },
+    },
 }

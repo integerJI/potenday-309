@@ -5,37 +5,46 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from rest_framework.decorators import api_view
+from rest_framework import generics
+from rest_framework.response import Response
 
-@swagger_auto_schema(
-    method='GET',
-    operation_id='sample api',
-    operation_description=
-        '테스트용 샘플입니당',
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-    ),
-    tags=['app'],
-    responses={200: openapi.Response(
-        description="200 OK",
-        schema=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'success': openapi.Schema(type=openapi.TYPE_OBJECT, description="호출하면 성공: 1"),
-            }
-        )
-    )}
-)
+from .models import Challenge
+from .serializers import ChallengeSerializer, ChallengeDetailSerializer, ImageSerializer
+
 @api_view(['GET'])
 def getSampleApi(request):
+    data = {
+        'status_code': 200,
+        'message': 'success',
+        'data': {
+            'success': 1
+        }
+    }
+    return Response(data)
 
-    response = {}
+class ChallengeListCreateView(generics.ListCreateAPIView):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
 
-    data = {}
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'status_code': 200,
+            'message': 'success',
+            'data': serializer.data
+        })
 
-    data["success"] = 1
+class ChallengeRetrieveView(generics.RetrieveAPIView):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
+    lookup_field = 'pk'
 
-    response["status_code"] = "200"
-    response["message"] = "success"
-    response["data"] = data
-
-    return JsonResponse(response, json_dumps_params={'ensure_ascii': False})
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            'status_code': 200,
+            'message': 'success',
+            'data': serializer.data
+        })
