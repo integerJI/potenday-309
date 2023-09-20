@@ -54,9 +54,12 @@ class ChallengeDetailSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ('image_type', 'image_url')
+        fields = ('pk', 'image_type', 'image_url')
         
     # 필드에 대한 설명 추가
+    pk = serializers.IntegerField(
+        help_text="이미지 Id"
+    )
     image_type = serializers.IntegerField(
         help_text="이미지 타입, {1: 백그라운드 이미지, 2: 빈배경 이미지, 3: 성공 스탬프 이미지, 4: 실패 스탬프 이미지}"
     )
