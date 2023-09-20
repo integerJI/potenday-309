@@ -8,7 +8,8 @@ class Challenge(models.Model):
     title = models.CharField(max_length=200)  # 제목 (최대 200자 문자열)
     start_date = models.DateField()  # 시작일 (날짜)
     end_date = models.DateField()  # 종료일 (날짜)
-    create_date = models.DateTimeField(auto_now_add=True)  # 생성일 (자동으로 현재 날짜와 시간 저장)
+    count_date = models.PositiveIntegerField()  # 진행 날짜 카운트
+    create_date = models.DateTimeField(auto_now_add=True, null=True)  # 생성일 (자동으로 현재 날짜와 시간 저장)
 
     def __str__(self):
         return self.title  # 챌린지 모델의 문자열 표현으로 제목을 사용
