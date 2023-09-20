@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from datetime import date, timedelta
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -147,3 +148,30 @@ class ImageList(generics.ListAPIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+class StampList(APIView):
+
+    def get(self, request, pk):
+        pk = self.kwargs['pk']  # URL에서 pk 값을 가져옵니다.
+        challenge = Challenge.objects.get(pk=pk)  # 해당 pk의 Challenge 객체를 가져옵니다.
+
+        # 해당 Challenge 객체의 start_date와 end_date를 얻습니다.
+        start_date = challenge.start_date
+        end_date = challenge.end_date
+
+        # 날짜 범위 내의 날짜를 생성하고, "0"으로 초기화된 딕셔너리를 생성합니다.
+        current_date = start_date
+        date_dict = {}
+
+        while current_date <= end_date:
+            date_str = current_date.strftime('%Y-%m-%d')
+            date_dict[date_str] = "0"
+            current_date += timedelta(days=1)
+
+        response_data = {
+            'status_code': status.HTTP_200_OK,
+            'message': 'Success',
+            'data': date_dict
+        }
+        return Response(response_data)

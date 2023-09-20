@@ -3,6 +3,9 @@ from .models import Challenge, ChallengeDetail, Image
 
 # 챌린지 모델 Serializer
 class ChallengeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Challenge
+        fields = '__all__'  # 모든 필드를 포함
 
     background_image = serializers.IntegerField(
         help_text="배경 이미지 ID"
@@ -40,10 +43,6 @@ class ChallengeSerializer(serializers.ModelSerializer):
     create_date = serializers.DateTimeField(
         help_text="데이터 생성일"
     )
-
-    class Meta:
-        model = Challenge
-        fields = '__all__'  # 모든 필드를 포함
 
 # 챌린지 상세 모델 Serializer
 class ChallengeDetailSerializer(serializers.ModelSerializer):
