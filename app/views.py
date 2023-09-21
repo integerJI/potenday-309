@@ -177,6 +177,10 @@ class ImageList(generics.ListAPIView):
 
 class StampList(APIView):
 
+    @swagger_auto_schema(
+        responses={200: ChallengeSerializer(many=True)},
+        operation_description="챌린지의 스탬프 출력"
+    )
     def get(self, request, pk):
         pk = self.kwargs['pk']  # URL에서 pk 값을 가져옵니다.
         challenge = Challenge.objects.get(pk=pk)  # 해당 pk의 Challenge 객체를 가져옵니다.
@@ -191,7 +195,15 @@ class StampList(APIView):
 
         while current_date <= end_date:
             date_str = current_date.strftime('%Y-%m-%d')
-            date_dict[date_str] = "0"
+            
+            # ChallengeDetail에서 데이터를 가져옵니다.
+            try:
+                challenge_detail = ChallengeDetail.objects.get(challenge_id=pk, reg_date=current_date)
+                print(challenge_detail)
+                date_dict[date_str] = challenge_detail.success_status
+            except ChallengeDetail.DoesNotExist:
+                date_dict[date_str] = 0
+            
             current_date += timedelta(days=1)
 
         response_data = {
@@ -201,6 +213,17 @@ class StampList(APIView):
         }
         return Response(response_data)
     
+
+    @swagger_auto_schema(
+        responses={200: ChallengeSerializer(many=True)},
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'challenge_id': openapi.Schema(type=openapi.TYPE_INTEGER, description= "챌린지 ID"),
+                'success_status': openapi.Schema(type=openapi.TYPE_INTEGER, description= "성공 여부 (0: 기본 값, 1: 성공, 2: 실패)"),
+            },
+        )
+    )
     def post(self, request, pk):
         try:
             challenge = Challenge.objects.get(pk=pk)
