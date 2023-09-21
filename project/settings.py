@@ -34,9 +34,27 @@ INSTALLED_APPS = [
     # pip install
     'rest_framework',
     'drf_yasg',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.kakao',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+ACCOUNT_LOGOUT_ON_GET = True 
+LOGIN_REDIRECT_URL = 'https://one-hundred-me.github.io/web/'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'https://one-hundred-me.github.io/web/'
+
 MIDDLEWARE = [
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

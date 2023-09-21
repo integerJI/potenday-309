@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from datetime import date, timedelta
+from django.views import View
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -12,6 +13,30 @@ from rest_framework.views import APIView
 
 from .models import Challenge, Image
 from .serializers import ChallengeSerializer, ChallengeDetailSerializer, ImageSerializer
+from pathlib import Path
+import os, json
+from django.core.exceptions import ImproperlyConfigured
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+secret_file = os.path.join(BASE_DIR, 'secrets.json')
+
+with open(secret_file) as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+
+class KakaoSignInView(View):
+    def get(self, request):
+        cliendId = get_secret("DJANGO_SECRET_KEY")
+        return redirect(
+            f"https://kauth.kakao.com/oauth/authorize?client_id={cliendId}&redirect_uri=/accounts/kakao/login/callback/&response_type=code"
+        )
 
 class ChallengeView(APIView):
 
