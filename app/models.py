@@ -17,7 +17,7 @@ class Challenge(models.Model):
 class ChallengeDetail(models.Model):
     challenge_id = models.PositiveIntegerField()  # 챌린지 ID (정수형)
     image_url = models.URLField()  # 이미지 URL (문자열, URL 형식)
-    reg_date = models.DateField()  # 등록일 (날짜)
+    reg_date = models.DateField(auto_now_add=True, null=True)  # 등록일 (날짜)
     success_status = models.PositiveIntegerField()  # 성공 여부 (정수형)
     memo = models.CharField(max_length=500)  # 메모 (최대 500자 문자열)
 

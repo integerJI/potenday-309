@@ -11,7 +11,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Challenge, Image
+from .models import Challenge, ChallengeDetail, Image
 from .serializers import ChallengeSerializer, ChallengeDetailSerializer, ImageSerializer
 from pathlib import Path
 import os, json
@@ -200,3 +200,37 @@ class StampList(APIView):
             'data': date_dict
         }
         return Response(response_data)
+    
+    def post(self, request, pk):
+        try:
+            challenge = Challenge.objects.get(pk=pk)
+        except Challenge.DoesNotExist:
+            return Response({'message': 'Challenge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # 요청에서 'challenge_id'와 'success_status'를 가져옵니다.
+        challenge_id = request.data.get('challenge_id')
+        success_status = request.data.get('success_status')
+
+        # 필요한 데이터를 기반으로 ChallengeDetail 모델에 데이터를 추가합니다.
+        try:
+            ChallengeDetail.objects.create(
+                challenge_id=challenge_id,
+                success_status=success_status,
+                # 나머지 필드도 필요한 경우 추가하세요.
+            )
+
+            response_data = {
+                'status_code': status.HTTP_201_CREATED,
+                'message': 'ChallengeDetail created successfully',
+                'data': 1  # 수정 성공을 나타내는 데이터
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            error_message = str(e)
+            response_data = {
+                'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message': 'Create failure',
+                'data': error_message
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
