@@ -38,7 +38,7 @@ class KakaoSignInView(View):
     def get(self, request):
         cliend_id = get_secret("SOCIAL_AUTH_KAKAO_KEY")
         return redirect(
-            f"https://kauth.kakao.com/oauth/authorize?client_id={cliend_id}&redirect_uri=http://127.0.0.1:8000/oauth/kakao/login/callback/token/&response_type=code"
+            f"https://kauth.kakao.com/oauth/authorize?client_id={cliend_id}&redirect_uri=http://13.209.70.9/oauth/kakao/login/callback/token/&response_type=code"
         )
     
 class KakaoSignInViewToken(View):
@@ -52,7 +52,7 @@ class KakaoSignInViewToken(View):
             'grant_type': 'authorization_code',
             'client_id': cliend_id,  # Kakao 애플리케이션의 클라이언트 ID로 변경
             'client_secret' : client_secret,
-            'redirect_uri': 'http://127.0.0.1:8000/oauth/kakao/login/callback/token/',
+            'redirect_uri': 'http://13.209.70.9/oauth/kakao/login/callback/token/',
             'code': code,
         }
 
