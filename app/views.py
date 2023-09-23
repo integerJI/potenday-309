@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from datetime import date, timedelta
 from django.views import View
+from django.http import HttpResponseRedirect
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -38,7 +39,7 @@ class KakaoSignInView(View):
     def get(self, request):
         cliend_id = get_secret("SOCIAL_AUTH_KAKAO_KEY")
         return redirect(
-            f"https://kauth.kakao.com/oauth/authorize?client_id={cliend_id}&redirect_uri=http://13.209.70.9/oauth/kakao/login/callback/token/&response_type=code"
+            f"https://kauth.kakao.com/oauth/authorize?client_id={cliend_id}&redirect_uri=http://127.0.0.1:8000/oauth/kakao/login/callback/token/&response_type=code"
         )
     
 class KakaoSignInViewToken(View):
@@ -52,7 +53,7 @@ class KakaoSignInViewToken(View):
             'grant_type': 'authorization_code',
             'client_id': cliend_id,  # Kakao 애플리케이션의 클라이언트 ID로 변경
             'client_secret' : client_secret,
-            'redirect_uri': 'http://13.209.70.9/oauth/kakao/login/callback/token/',
+            'redirect_uri': 'http://127.0.0.1:8000/oauth/kakao/login/callback/token/',
             'code': code,
         }
 
@@ -63,7 +64,16 @@ class KakaoSignInViewToken(View):
         if response.status_code == 200:
             # 토큰 발급 성공 시 응답을 JSON 형식으로 반환
             token_data = response.json()
-            return JsonResponse(token_data)
+
+            # Authorization 헤더에 토큰 추가
+            authorization_header = f"Bearer {token_data['access_token']}"
+
+            # 리다이렉션 URL 생성
+            redirection_url = 'https://one-hundred-me.github.io/web/'
+            
+            # 리다이렉션 시 Authorization 헤더를 포함하여 보냅니다.
+            return HttpResponseRedirect(redirection_url, headers={'Authorization': authorization_header})
+
         else:
             # 토큰 발급 실패 시 에러 응답을 반환
             error_data = {'error': 'Failed to obtain access token'}
