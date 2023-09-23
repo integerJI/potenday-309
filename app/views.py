@@ -110,7 +110,16 @@ class ChallengeView(APIView):
 
     @swagger_auto_schema(
         responses={200: ChallengeSerializer(many=True)},
-        operation_description="챌린지 상세"
+        operation_description="챌린지 상세",
+        manual_parameters=[
+            openapi.Parameter(
+                'Authorization',
+                openapi.IN_HEADER,
+                description="Access token",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ]
     )
     def get(self, request, pk):
         access_token = request.META.get('HTTP_AUTHORIZATION')  # Get the Authorization header value
