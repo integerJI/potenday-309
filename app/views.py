@@ -14,12 +14,15 @@ from rest_framework.views import APIView
 from .models import Challenge, ChallengeDetail, Image
 from .serializers import ChallengeSerializer, ChallengeDetailSerializer, ImageSerializer
 from pathlib import Path
-import os, json
+import os, json, requests
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 secret_file = os.path.join(BASE_DIR, 'secrets.json')
+
+def index(request):
+    render (request, 'index.html')
 
 with open(secret_file) as f:
     secrets = json.loads(f.read())
@@ -33,10 +36,65 @@ def get_secret(setting, secrets=secrets):
 
 class KakaoSignInView(View):
     def get(self, request):
-        cliendId = get_secret("DJANGO_SECRET_KEY")
+        cliend_id = get_secret("SOCIAL_AUTH_KAKAO_KEY")
         return redirect(
-            f"https://kauth.kakao.com/oauth/authorize?client_id={cliendId}&redirect_uri=/accounts/kakao/login/callback/&response_type=code"
+            f"https://kauth.kakao.com/oauth/authorize?client_id={cliend_id}&redirect_uri=http://127.0.0.1:8000/oauth/kakao/login/callback/token/&response_type=code"
         )
+    
+class KakaoSignInViewToken(View):
+    def get(self, request):
+        code = request.GET.get('code')
+        cliend_id = get_secret("SOCIAL_AUTH_KAKAO_KEY")
+        client_secret = get_secret("SOCIAL_AUTH_KAKAO_SECRET")
+
+        # Kakao OAuth 서버에 토큰을 요청할 데이터 설정
+        data = {
+            'grant_type': 'authorization_code',
+            'client_id': cliend_id,  # Kakao 애플리케이션의 클라이언트 ID로 변경
+            'client_secret' : client_secret,
+            'redirect_uri': 'http://127.0.0.1:8000/oauth/kakao/login/callback/token/',
+            'code': code,
+        }
+
+        # Kakao OAuth 서버로 POST 요청을 보냅니다.
+        response = requests.post('https://kauth.kakao.com/oauth/token', data=data)
+
+        # 응답 확인
+        if response.status_code == 200:
+            # 토큰 발급 성공 시 응답을 JSON 형식으로 반환
+            token_data = response.json()
+            return JsonResponse(token_data)
+        else:
+            # 토큰 발급 실패 시 에러 응답을 반환
+            error_data = {'error': 'Failed to obtain access token'}
+            return JsonResponse(error_data, status=400)
+
+class KakaoUserInfoView(View):
+    def get(self, request):
+        # 액세스 토큰을 요청에서 가져오거나 세션에서 추출합니다.
+        access_token = request.GET.get('access_token')
+
+        # 액세스 토큰이 없으면 오류 응답 반환
+        if not access_token:
+            return JsonResponse({'error': 'Access token is missing'}, status=400)
+
+        # Kakao API 서버에 사용자 정보 요청
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+
+        if response.status_code == 200:
+            user_data = response.json()
+            # 여기에서 user_data를 원하는 방식으로 처리합니다.
+            # 예를 들어, user_data에서 사용자의 고유 ID나 닉네임을 추출할 수 있습니다.
+            user_id = user_data['id']
+
+            # 사용자 정보를 JSON 응답으로 반환
+            return JsonResponse({'user_id': user_id})
+        else:
+            # Kakao API 서버에서 오류 응답이 온 경우
+            error_data = response.json()
+            return JsonResponse(error_data, status=response.status_code)
+
 
 class ChallengeView(APIView):
 

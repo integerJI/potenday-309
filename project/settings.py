@@ -50,8 +50,7 @@ SITE_ID = 1
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_LOGOUT_ON_GET = True 
-LOGIN_REDIRECT_URL = 'https://one-hundred-me.github.io/web/'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'https://one-hundred-me.github.io/web/'
+LOGIN_REDIRECT_URL = 'login_with_kakao'
 
 MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
