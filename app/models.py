@@ -1,6 +1,7 @@
 from django.db import models
 
 class Challenge(models.Model):
+    user_no = models.PositiveIntegerField(default=0)  # 배경 이미지 ID (정수형)
     background_image = models.PositiveIntegerField()  # 배경 이미지 ID (정수형)
     blank_image = models.PositiveIntegerField()  # 빈칸 이미지 ID (정수형)
     success_image = models.PositiveIntegerField()  # 성공 이미지 ID (정수형)

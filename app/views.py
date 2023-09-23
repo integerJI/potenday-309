@@ -95,19 +95,37 @@ class KakaoUserInfoView(View):
             error_data = response.json()
             return JsonResponse(error_data, status=response.status_code)
 
-
 class ChallengeView(APIView):
+
+    def extract_user_id(self, access_token):
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+
+        if response.status_code == 200:
+            user_data = response.json()
+            user_id = user_data['id']
+            return user_id
+        else:
+            return 0
 
     @swagger_auto_schema(
         responses={200: ChallengeSerializer(many=True)},
         operation_description="챌린지 상세"
     )
     def get(self, request, pk):
+        access_token = request.META.get('HTTP_AUTHORIZATION')  # Get the Authorization header value
+
+        # Check if the user is authenticated
+        if not access_token:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_id = self.extract_user_id(access_token)
+
         try:
             challenge = Challenge.objects.get(pk=pk)
         except Challenge.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
+        
         serializer = ChallengeSerializer(challenge)
         data = serializer.data
 
@@ -116,6 +134,7 @@ class ChallengeView(APIView):
         data['blank_image_url'] = get_image_url(data.get('blank_image'))
         data['success_image_url'] = get_image_url(data.get('success_image'))
         data['failure_image_url'] = get_image_url(data.get('failure_image'))
+        data['user_info'] = challenge.user_no == user_id
 
         response_data = {
             'status_code': status.HTTP_200_OK,
