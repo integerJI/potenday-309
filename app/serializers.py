@@ -7,6 +7,10 @@ class ChallengeSerializer(serializers.ModelSerializer):
         model = Challenge
         fields = '__all__'  # 모든 필드를 포함
 
+    user_no = serializers.IntegerField(
+        help_text="챌린지 작성 유저 키"
+    )
+
     background_image = serializers.IntegerField(
         help_text="배경 이미지 ID"
     )
@@ -42,6 +46,10 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
     create_date = serializers.DateTimeField(
         help_text="데이터 생성일"
+    )
+
+    user_info = serializers.BooleanField(
+        help_text="토큰을 통한 유저 인증"
     )
 
 # 챌린지 상세 모델 Serializer
