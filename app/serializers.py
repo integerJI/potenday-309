@@ -48,10 +48,6 @@ class ChallengeSerializer(serializers.ModelSerializer):
         help_text="데이터 생성일"
     )
 
-    user_info = serializers.BooleanField(
-        help_text="토큰을 통한 유저 인증"
-    )
-
 # 챌린지 상세 모델 Serializer
 class ChallengeDetailSerializer(serializers.ModelSerializer):
     class Meta:
