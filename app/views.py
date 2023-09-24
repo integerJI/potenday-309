@@ -105,6 +105,77 @@ class KakaoUserInfoView(View):
             error_data = response.json()
             return JsonResponse(error_data, status=response.status_code)
 
+class UserChallengesListView(APIView):
+    def extract_user_id(self, access_token):
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+
+        if response.status_code == 200:
+            user_data = response.json()
+            user_id = user_data['id']
+            return user_id
+        else:
+            return 0
+
+    def get(self, request):
+        access_token = request.META.get('HTTP_AUTHORIZATION')  # Get the Authorization header value
+
+        # Check if the user is authenticated
+        if not access_token:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_id = self.extract_user_id(access_token)
+
+        if user_id is 0:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # Find all challenges that match the user_id
+        challenges = Challenge.objects.filter(user_no=user_id)
+
+        # Serialize the challenges and return the data
+        serializer = ChallengeSerializer(challenges, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserChallengesListView(APIView):
+    
+    def extract_user_id(self, access_token):
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = requests.get('https://kapi.kakao.com/v2/user/me', headers=headers)
+
+        if response.status_code == 200:
+            user_data = response.json()
+            user_id = user_data['id']
+            return user_id
+        else:
+            return 3031272287
+
+    def get(self, request):
+        access_token = request.META.get('HTTP_AUTHORIZATION')  # Get the Authorization header value
+
+        # Check if the user is authenticated
+        if not access_token:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_id = self.extract_user_id(access_token)
+
+        if user_id is None:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Find all challenges that match the user_id
+        challenges = Challenge.objects.filter(user_no=user_id)
+
+        # Serialize the challenges
+        serializer = ChallengeSerializer(challenges, many=True)
+        
+        # Create a custom response
+        response_data = {
+            'status_code': status.HTTP_200_OK,
+            'message': 'Success',
+            'data': serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+    
+
 class ChallengeView(APIView):
 
     def extract_user_id(self, access_token):
@@ -116,7 +187,7 @@ class ChallengeView(APIView):
             user_id = user_data['id']
             return user_id
         else:
-            return 0
+            return 3031272287
 
     @swagger_auto_schema(
         responses={200: ChallengeSerializer(many=True)},
